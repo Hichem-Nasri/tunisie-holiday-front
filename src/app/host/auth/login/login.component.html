@@ -1,0 +1,113 @@
+<div id="auth">
+  <div class="row h-100">
+    <!-- LEFT -->
+    <div class="col-lg-5 col-12">
+      <div id="auth-left">
+        <!-- Logo -->
+        <div class="auth-logo mb-4">
+          <!--<a routerLink="/host/login">
+            <img
+              src=""
+              alt="Tunisie Holiday"
+              height="40"
+            />
+          </a>-->
+        </div>
+
+        <!-- Title -->
+        <h1 class="auth-title">Connexion</h1>
+        <p class="auth-subtitle mb-5">
+          Connectez-vous à votre espace hôte
+        </p>
+
+        <!-- FORM -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <!-- Email -->
+          <div class="form-group position-relative has-icon-left mb-4">
+            <input
+              type="email"
+              class="form-control form-control-xl"
+              placeholder="Email"
+              formControlName="email"
+            />
+            <div class="form-control-icon">
+              <i class="bi bi-envelope"></i>
+            </div>
+
+            <small
+              class="text-danger"
+              *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+            >
+              Email invalide
+            </small>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group position-relative has-icon-left mb-4">
+            <input
+              type="password"
+              class="form-control form-control-xl"
+              placeholder="Mot de passe"
+              formControlName="password"
+            />
+            <div class="form-control-icon">
+              <i class="bi bi-shield-lock"></i>
+            </div>
+
+            <small
+              class="text-danger"
+              *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+            >
+              Mot de passe requis
+            </small>
+          </div>
+
+          <!-- Remember me -->
+          <div class="form-check form-check-lg d-flex align-items-end">
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="rememberMe"
+              id="rememberMe"
+            />
+            <label
+              class="form-check-label text-gray-600"
+              for="rememberMe"
+            >
+              Se souvenir de moi
+            </label>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            class="btn btn-primary btn-block btn-lg shadow-lg mt-5"
+            [disabled]="loginForm.invalid"
+          >
+            Se connecter
+          </button>
+        </form>
+
+        <!-- Links -->
+        <div class="text-center mt-5 text-lg fs-4">
+          <p class="text-gray-600">
+            Pas encore de compte ?
+            <a routerLink="/host/register" class="font-bold">
+              Inscription
+            </a>
+          </p>
+          <p>
+            <a class="font-bold" routerLink="/host/forgot-password">
+              Mot de passe oublié ?
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT IMAGE -->
+    <div class="col-lg-7 d-none d-lg-block">
+      <div id="auth-right"></div>
+    </div>
+  </div>
+</div>

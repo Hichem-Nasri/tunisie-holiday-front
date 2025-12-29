@@ -1,0 +1,118 @@
+<div id="auth">
+  <div class="row h-100">
+    <div class="col-lg-5 col-12">
+      <div id="auth-left">
+
+        <!-- Logo -->
+        <div class="auth-logo">
+          <a routerLink="/host/login">
+            <img src="assets/images/logo.png" alt="Tunisie Holidays">
+          </a>
+        </div>
+
+        <h1 class="auth-title">Inscription</h1>
+        <p class="auth-subtitle mb-5">
+          Créez votre compte hôte
+        </p>
+
+        <!-- FORM -->
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+          <!-- Email -->
+          <div class="form-group position-relative has-icon-left mb-4">
+            <input
+              type="email"
+              class="form-control form-control-xl"
+              placeholder="Email"
+              formControlName="email"
+            />
+            <div class="form-control-icon">
+              <i class="bi bi-envelope"></i>
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="form-group position-relative has-icon-left mb-4">
+            <input
+              type="text"
+              class="form-control form-control-xl"
+              placeholder="Nom complet"
+              formControlName="name"
+            />
+            <div class="form-control-icon">
+              <i class="bi bi-person"></i>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group position-relative has-icon-left mb-4">
+            <input
+              type="password"
+              class="form-control form-control-xl"
+              placeholder="Mot de passe"
+              formControlName="password"
+            />
+            <div class="form-control-icon">
+              <i class="bi bi-shield-lock"></i>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group position-relative has-icon-left mb-4">
+            <input
+              type="password"
+              class="form-control form-control-xl"
+              placeholder="Confirmer le mot de passe"
+              formControlName="confirmPassword"
+            />
+            <div class="form-control-icon">
+              <i class="bi bi-shield-lock"></i>
+            </div>
+          </div>
+
+          <!-- TYPE HÔTE -->
+          <div class="form-group position-relative has-icon-left mb-4">
+            <select
+              class="form-select form-control-xl"
+              formControlName="type"
+            >
+              <option value="" disabled selected>
+                Type de compte
+              </option>
+              <option value="owner">Propriétaire</option>
+              <option value="hotel">Hôtelier</option>
+              
+            </select>
+            
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            class="btn btn-primary btn-block btn-lg shadow-lg mt-5"
+            [disabled]="registerForm.invalid"
+          >
+            S’inscrire
+          </button>
+
+        </form>
+
+        <!-- Footer -->
+        <div class="text-center mt-5 text-lg fs-4">
+          <p class="text-gray-600">
+            Déjà un compte ?
+            <a routerLink="/host/login" class="font-bold">
+              Se connecter
+            </a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-lg-7 d-none d-lg-block">
+      <div id="auth-right"></div>
+    </div>
+  </div>
+</div>
