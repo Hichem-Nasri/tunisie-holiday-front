@@ -1,0 +1,176 @@
+<div class="page-heading mb-4">
+  <h3>Dashboard Hôte</h3>
+  <p class="text-muted">Vue d’ensemble de votre activité</p>
+</div>
+
+<div class="page-content">
+
+  <!-- 🔹 KPI CARDS -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Total annonces</h6>
+          <h3 class="fw-bold">{{ stats.properties }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Publiées</h6>
+          <h3 class="fw-bold text-success">{{ stats.published }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Brouillons</h6>
+          <h3 class="fw-bold text-secondary">{{ stats.draft }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Sans photo</h6>
+          <h3 class="fw-bold text-danger">{{ stats.noImage }}</h3>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 💰 REVENUS -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-success">
+        <div class="card-body">
+          <h6 class="text-muted">Revenus totaux</h6>
+          <h3 class="fw-bold text-success">
+            {{ revenues.totalRevenue | number:'1.0-0' }} TND
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Revenus ce mois</h6>
+          <h3 class="fw-bold">
+            {{ revenues.monthlyRevenue | number:'1.0-0' }} TND
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">Réservations confirmées</h6>
+          <h3 class="fw-bold">
+            {{ revenues.confirmedReservations }}
+          </h3>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 📊 ÉVOLUTION DES REVENUS -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Évolution des revenus (année en cours)</h5>
+        <span class="text-muted small">TND</span>
+      </div>
+
+      <div id="monthlyRevenueChart"></div>
+    </div>
+  </div>
+
+  <!-- 🏆 TOP ANNONCES PAR REVENU -->
+  <div class="card mb-4" *ngIf="topListings.length > 0">
+    <div class="card-body">
+      <h5 class="mb-3">Top annonces par revenu</h5>
+
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Annonce</th>
+            <th>Ville</th>
+            <th>Réservations</th>
+            <th class="text-end">Revenus</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let l of topListings; let i = index">
+            <td>
+              <strong>#{{ i + 1 }} {{ l.title }}</strong>
+            </td>
+            <td>{{ l.city }}</td>
+            <td>{{ l.reservationsCount }}</td>
+            <td class="text-end fw-bold text-success">
+              {{ l.revenue | number:'1.0-0' }} TND
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- ⚡ ACTIONS RAPIDES -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="mb-3">Actions rapides</h5>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a routerLink="/host/add-listing" class="btn btn-primary">
+          ➕ Ajouter une annonce
+        </a>
+
+        <a routerLink="/host/listings" class="btn btn-outline-secondary">
+          📋 Gérer mes annonces
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📋 ANNONCES RÉCENTES -->
+  <div class="card mb-4" *ngIf="recentListings.length > 0">
+    <div class="card-body">
+      <h5 class="mb-3">Annonces récentes</h5>
+
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let l of recentListings">
+          <div>
+            <strong>{{ l.title }}</strong>
+            <div class="text-muted small">{{ l.city }}</div>
+          </div>
+
+          <span class="badge" [ngClass]="{
+              'bg-success': l.status === 'PUBLISHED',
+              'bg-secondary': l.status === 'DRAFT',
+              'bg-danger': l.status === 'DISABLED'
+            }">
+            {{ l.status }}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 💡 CONSEIL -->
+  <div class="alert alert-warning" *ngIf="stats.noImage > 0">
+    ⚠️ {{ stats.noImage }} annonce(s) n’ont pas encore de photos.
+    Ajoutez-en pour améliorer leur visibilité.
+  </div>
+
+</div>

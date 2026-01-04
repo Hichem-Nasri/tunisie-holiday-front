@@ -1,0 +1,102 @@
+<div id="app">
+  <div id="sidebar">
+    <div class="sidebar-wrapper active">
+
+      <!-- SIDEBAR HEADER -->
+      <div class="sidebar-header position-relative">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="logo">
+            <a routerLink="/host/dashboard">
+              <img src="assets/images/logo.png" alt="Logo">
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR MENU -->
+      <div class="sidebar-menu">
+        <ul class="menu">
+          <li class="sidebar-title">Menu</li>
+
+          <li class="sidebar-item active">
+            <a routerLink="/host/dashboard" class="sidebar-link">
+              <i class="bi bi-grid-fill"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+
+          <!-- MY LISTINGS -->
+          <li class="sidebar-item">
+            <a routerLink="/host/listings" class="sidebar-link">
+              <i class="bi bi-house-door-fill"></i>
+              <span>Mes annonces</span>
+            </a>
+          </li>
+
+          <!-- MY RESERVATIONS -->
+          <li class="sidebar-item">
+            <a routerLink="/host/reservations" class="sidebar-link">
+              <i class="bi bi-calendar-check-fill"></i>
+              <span>Mes réservations</span>
+            </a>
+          </li>
+
+          <!-- ADD LISTING -->
+          <li class="sidebar-item">
+            <a routerLink="/host/add-listing" class="sidebar-link">
+              <i class="bi bi-house-door-fill"></i>
+              <span>Ajouter une annonce</span>
+            </a>
+          </li>
+
+          <!-- tu peux ajouter d’autres menus ici -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <header class="mb-3">
+      <a href="#" class="burger-btn d-block d-xl-none">
+        <i class="bi bi-justify fs-3"></i>
+      </a>
+    </header>
+    <!-- ✅ USER CONNECTÉ (compact & friendly) -->
+    <div class="container-fluid mb-3" *ngIf="user">
+      <div class="d-flex justify-content-end">
+        <div class="card shadow-sm" style="max-width: 360px;">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex align-items-center">
+
+              <img src="assets/images/avatar-default.png" alt="Avatar" class="rounded-circle" width="40" height="40">
+
+              <div class="ms-3">
+                <div class="fw-semibold">
+                  Bonjour {{ user.name }} 👋
+                </div>
+                <div class="text-muted small">
+                  {{ user.email }}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 🔥 CONTENU DYNAMIQUE -->
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer clearfix mb-0 text-muted">
+        <div class="float-start">
+          <p>2026 &copy; Tunisie Holiday</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>

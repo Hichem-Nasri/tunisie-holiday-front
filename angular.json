@@ -32,9 +32,7 @@
             "styles": [
               "src/styles.scss",
               "src/assets/global/css/app.css",
-              "src/assets/global/css/auth.scss",
-              "src/assets/global/css/choices.scss",
-              "src/assets/global/css/base.scss"
+              "src/assets/global/css/auth.scss"
             ],
             "scripts": []
           },

@@ -1,0 +1,127 @@
+<div class="container-fluid">
+  <div class="page-heading">
+    <h3>Modifier l’annonce</h3>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+
+      <form [formGroup]="listingForm" (ngSubmit)="onSubmit()">
+
+        <div class="row">
+
+          <!-- Titre -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Titre</label>
+            <input class="form-control" formControlName="title">
+            <small class="text-danger" *ngIf="listingForm.get('title')?.touched && listingForm.get('title')?.invalid">
+              Titre requis
+            </small>
+          </div>
+
+          <!-- Ville -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Ville</label>
+            <input class="form-control" formControlName="city">
+          </div>
+
+          <!-- Adresse -->
+          <div class="col-md-12 mb-3">
+            <label class="form-label">Adresse</label>
+            <input class="form-control" formControlName="address">
+          </div>
+
+          <!-- Description -->
+          <div class="col-md-12 mb-3">
+            <label class="form-label">Description</label>
+            <textarea rows="4" class="form-control" formControlName="description">
+            </textarea>
+          </div>
+
+          <!-- Prix -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Prix par nuit (TND)</label>
+            <input type="number" class="form-control" formControlName="pricePerNight">
+          </div>
+
+          <!-- Max guests -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Nombre max d’invités</label>
+            <input type="number" class="form-control" formControlName="maxGuests" min="1">
+          </div>
+
+          <!-- Type -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Type de logement</label>
+            <select class="form-select" formControlName="type">
+              <option value="APARTMENT">Appartement</option>
+              <option value="ROOM">Chambre</option>
+              <option value="HOTEL_ROOM">Chambre d’hôtel</option>
+            </select>
+          </div>
+
+          <!-- Chambres / Lits / SDB -->
+          <div class="col-md-4 mb-3">
+            <label>Chambres</label>
+            <input type="number" class="form-control" formControlName="bedrooms">
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label>Lits</label>
+            <input type="number" class="form-control" formControlName="beds">
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label>Salles de bain</label>
+            <input type="number" class="form-control" formControlName="bathrooms">
+          </div>
+
+          <!-- Équipements -->
+          <div class="col-md-12 mb-3">
+            <label class="form-label">Équipements</label>
+            <div class="row">
+              <div class="col-md-3" *ngFor="let a of amenitiesList">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" [value]="a"
+                    [checked]="listingForm.value.amenities?.includes(a)" (change)="onAmenityChange($event)">
+                  <label class="form-check-label">{{ a }}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Règles -->
+          <div class="col-md-12 mb-3">
+            <label>Règles du logement</label>
+            <textarea rows="3" class="form-control" formControlName="houseRules">
+  </textarea>
+          </div>
+
+          <!-- Check-in / Check-out -->
+          <div class="col-md-6 mb-3">
+            <label>Check-in à partir de</label>
+            <input type="time" class="form-control" formControlName="checkInTime">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label>Check-out avant</label>
+            <input type="time" class="form-control" formControlName="checkOutTime">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-4">
+          <button class="btn btn-primary" type="submit" [disabled]="isSubmitting || listingForm.invalid">
+            {{ isSubmitting ? 'Saving...' : 'Mettre à jour' }}
+          </button>
+
+          <a class="btn btn-light ms-2" routerLink="/host/listings">
+            Annuler
+          </a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>

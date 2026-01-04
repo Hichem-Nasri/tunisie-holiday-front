@@ -1,0 +1,73 @@
+<div class="container-fluid">
+  <h3 class="mb-4">Mes annonces</h3>
+
+  <div *ngIf="loading" class="alert alert-info">
+    Chargement des annonces…
+  </div>
+
+  <div *ngIf="!loading && listings.length === 0" class="alert alert-warning">
+    Aucune annonce trouvée
+  </div>
+
+  <div class="row">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-center">
+
+          <!-- 🔍 Filtre statut -->
+          <div class="col-md-3">
+            <select class="form-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+              <option value="">Tous les statuts</option>
+              <option value="PUBLISHED">Publiées</option>
+              <option value="DRAFT">Brouillons</option>
+              <option value="DISABLED">Désactivées</option>
+            </select>
+          </div>
+
+          <!-- ↕️ Tri -->
+          <div class="col-md-3">
+            <select class="form-select" [(ngModel)]="sortBy" (change)="applyFilters()">
+              <option value="createdAt_desc">Plus récentes</option>
+              <option value="createdAt_asc">Plus anciennes</option>
+              <option value="price_asc">Prix croissant</option>
+              <option value="price_desc">Prix décroissant</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3" *ngFor="let listing of listings ; trackBy: trackById">
+      <div class="card h-100  position-relative">
+        <!-- ✅ BADGE STATUT (ICI) -->
+        <span class="badge position-absolute top-0 end-0 m-2" [ngClass]="{
+        'bg-success': listing.status === 'PUBLISHED',
+        'bg-secondary': listing.status === 'DRAFT',
+        'bg-danger': listing.status === 'DISABLED'
+      }">
+           {{ getStatusLabel(listing.status) }}
+        </span>
+        <a class="stretched-link" [routerLink]="['/host/details-listing', listing.id]" aria-label="Voir détails">
+          <img [src]="listing.images?.[0] || 'assets/images/no-image.png'" class="card-img-top listing-img"
+            alt="Listing image" loading="lazy" />
+        </a>
+        <div class="card-body">
+          <h5 class="card-title">{{ listing.title }}</h5>
+          <p class="card-text">{{ listing.city }}</p>
+          <p class="fw-bold">{{ listing.pricePerNight }} TND / nuit</p>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+          <a class="btn btn-sm btn-primary" [routerLink]="['/host/edit-listing', listing.id]">
+            Modifier
+          </a>
+
+          <button class="btn btn-sm btn-danger" [disabled]="loading" (click)="deleteListing(listing.id ||0)">
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

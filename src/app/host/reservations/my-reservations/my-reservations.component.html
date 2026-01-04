@@ -1,0 +1,103 @@
+<div class="container-fluid">
+  <h3 class="mb-4">Mes réservations</h3>
+
+  <!-- 💡 INFO -->
+  <div class="alert alert-info small">
+    💡 Paiement à l’arrivée (espèces ou chèque), confirmé par l’hôte.
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="alert alert-info">
+    Chargement des réservations…
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && reservations.length === 0" class="alert alert-warning">
+    Aucune réservation pour le moment
+  </div>
+
+  <!-- Table -->
+  <table class="table align-middle" *ngIf="!loading && reservations.length">
+    <thead>
+      <tr>
+        <th>Annonce</th>
+        <th>Dates</th>
+        <th>Voyageurs</th>
+        <th>Montant</th>
+        <th>Statut</th>
+        <th>Paiement</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let r of reservations">
+
+        <!-- Annonce -->
+        <td>
+          <strong>{{ r.listingTitle }}</strong>
+          <div class="text-muted small">{{ r.city }}</div>
+        </td>
+
+        <!-- Dates -->
+        <td>
+          {{ r.checkInDate | date:'dd/MM' }}
+          →
+          {{ r.checkOutDate | date:'dd/MM/yyyy' }}
+        </td>
+
+        <!-- Voyageurs -->
+        <td>{{ r.guests }}</td>
+
+        <!-- Montant -->
+        <td class="fw-bold">
+          {{ r.totalPrice }} TND
+        </td>
+
+        <!-- Statut réservation -->
+        <td>
+          <span class="badge" [ngClass]="{
+              'bg-success': r.status === 'CONFIRMED',
+              'bg-warning': r.status === 'PENDING',
+              'bg-danger': r.status === 'CANCELLED'
+            }">
+            {{ r.status }}
+          </span>
+        </td>
+
+        <!-- Paiement -->
+        <td>
+          <span class="badge" [ngClass]="{
+      'bg-warning text-dark': r.paymentStatus === 'PENDING',
+      'bg-success text-white': r.paymentStatus === 'PAID'
+    }">
+            {{ r.paymentStatus === 'PAID' ? 'Payé' : 'À encaisser' }}
+          </span>
+        </td>
+        <!-- Actions -->
+        <td>
+          <!-- Réservation en attente -->
+          <button *ngIf="r.status === 'PENDING'" class="btn btn-sm btn-success me-1" (click)="accept(r)">
+            Accepter
+          </button>
+
+          <button *ngIf="r.status === 'PENDING'" class="btn btn-sm btn-outline-danger me-1" (click)="reject(r)">
+            Refuser
+          </button>
+
+          <!-- Réservation confirmée -->
+          <button *ngIf="r.status === 'CONFIRMED'" class="btn btn-sm btn-outline-danger me-1" (click)="cancel(r)">
+            Annuler
+          </button>
+
+          <!-- Paiement -->
+          <button *ngIf="r.status === 'CONFIRMED' && r.paymentStatus === 'PENDING'" class="btn btn-sm btn-success mt-1"
+            (click)="markAsPaid(r)">
+            Marquer comme payé
+          </button>
+        </td>
+
+      </tr>
+    </tbody>
+  </table>
+</div>
