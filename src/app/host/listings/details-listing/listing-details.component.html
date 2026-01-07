@@ -1,0 +1,163 @@
+<div class="container-fluid" *ngIf="loading">
+  <div class="alert alert-info">Chargement…</div>
+</div>
+
+<div class="container-fluid" *ngIf="!loading && listing">
+
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <h3 class="mb-1">{{ listing.title }}</h3>
+      <div class="text-muted">
+        {{ listing.city }} • {{ listing.address }}
+      </div>
+    </div>
+
+    <div class="text-end">
+      <div class="fs-4 fw-bold">{{ listing.pricePerNight }} TND</div>
+      <div class="text-muted">par nuit</div>
+    </div>
+  </div>
+
+  <!-- Images (simple carousel bootstrap) -->
+  <div id="listingCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item" *ngFor="let img of images; let i = index" [class.active]="i === 0">
+        <img [src]="img" class="d-block w-100 rounded" style="height: 420px; object-fit: cover;">
+      </div>
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev"
+      *ngIf="images.length > 1">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next"
+      *ngIf="images.length > 1">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+
+      <!-- DESCRIPTION -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="mb-3">Description</h5>
+          <p class="mb-0" style="white-space: pre-line;">
+            {{ listing.description }}
+          </p>
+        </div>
+      </div>
+
+      <!-- INFORMATIONS GÉNÉRALES -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="mb-3">Informations</h5>
+
+          <div class="row g-2">
+            <div class="col-md-4">
+              <span class="text-muted">Type :</span>
+              {{ formatType(listing.type) }}
+            </div>
+
+            <div class="col-md-4">
+              <span class="text-muted">Max invités :</span>
+              {{ listing.maxGuests ?? '-' }}
+            </div>
+
+            <div class="col-md-4">
+              <span class="text-muted">Ville :</span>
+              {{ listing.city }}
+            </div>
+
+            <div class="col-md-4">
+              <span class="text-muted">Chambres :</span>
+              {{ listing.bedrooms ?? '-' }}
+            </div>
+
+            <div class="col-md-4">
+              <span class="text-muted">Lits :</span>
+              {{ listing.beds ?? '-' }}
+            </div>
+
+            <div class="col-md-4">
+              <span class="text-muted">Salles de bain :</span>
+              {{ listing.bathrooms ?? '-' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÉQUIPEMENTS -->
+      <div class="card mb-3" *ngIf="listing.amenities?.length">
+        <div class="card-body">
+          <h5 class="mb-3">Équipements</h5>
+
+          <div class="row">
+            <div class="col-md-4 mb-2" *ngFor="let a of listing.amenities">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              {{ a }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RÈGLES & HORAIRES -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="mb-3">Règles & horaires</h5>
+
+          <div class="mb-2">
+            <span class="text-muted">Check-in :</span>
+            {{ listing.checkInTime || '-' }}
+          </div>
+
+          <div class="mb-2">
+            <span class="text-muted">Check-out :</span>
+            {{ listing.checkOutTime || '-' }}
+          </div>
+
+          <div *ngIf="listing.houseRules">
+            <span class="text-muted">Règles du logement :</span>
+            <p class="mb-0 mt-1" style="white-space: pre-line;">
+              {{ listing.houseRules }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Bloc réservation (placeholder) -->
+      <div class="card">
+        <div class="card-body">
+          <h5>Actions</h5>
+
+          <a class="btn btn-primary w-100 mb-2" [routerLink]="['/host/edit-listing', listing.id]">
+            Modifier l’annonce
+          </a>
+
+          <button class="btn w-100 mb-2" [ngClass]="listing.status === 'PUBLISHED'
+    ? 'btn-outline-secondary'
+    : 'btn-success'" (click)="toggleStatus()">
+
+            {{ listing.status === 'PUBLISHED'
+            ? 'Dépublier'
+            : 'Publier' }}
+          </button>
+
+          <button class="btn btn-outline-danger w-100">
+            Supprimer
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="container-fluid" *ngIf="!loading && !listing">
+  <div class="alert alert-warning">Annonce introuvable</div>
+</div>

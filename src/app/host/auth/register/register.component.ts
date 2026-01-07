@@ -7,6 +7,7 @@ import {
   ReactiveFormsModule
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -25,6 +26,7 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
+    private authService: AuthService,
     private router: Router
   ) {
     this.initForm();
@@ -52,28 +54,20 @@ export class RegisterComponent {
 
   // 🔹 Soumission du formulaire
   onSubmit(): void {
-    if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
-      return;
-    }
+  if (this.registerForm.invalid) return;
 
-    this.isSubmitting = true;
-
-    const registerData = {
-      email: this.registerForm.value.email,
-      name: this.registerForm.value.name,
-      password: this.registerForm.value.password,
-      type: this.registerForm.value.type
-    };
-
-    console.log('Register data:', registerData);
-
-    // 🔸 MOCK API CALL
-    setTimeout(() => {
-      this.isSubmitting = false;
-
-      // Redirection vers login après inscription
+  this.authService.register({
+    name: this.registerForm.value.name!,
+    email: this.registerForm.value.email!,
+    password: this.registerForm.value.password!,
+    type: this.registerForm.value.type!
+  }).subscribe({
+    next: () => {
       this.router.navigate(['/host/login']);
-    }, 800);
-  }
+    },
+    error: () => {
+      alert('Erreur lors de l’inscription');
+    }
+  });
+}
 }
