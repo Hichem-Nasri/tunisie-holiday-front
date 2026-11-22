@@ -69,9 +69,9 @@ export class FlightResultsComponent {
     return this.sortList(list, this.sort());
   });
 
-  readonly cheapest = computed(() => this.sortList(this.filtered(), 'PRICE')[0] ?? null);
-  readonly fastest = computed(() => this.sortList(this.filtered(), 'DURATION')[0] ?? null);
-  readonly best = computed(() => this.sortList(this.filtered(), 'BEST')[0] ?? null);
+  readonly cheapest = computed<FlightResult | null>(() => this.sortList(this.filtered(), 'PRICE')[0] ?? null);
+  readonly fastest = computed<FlightResult | null>(() => this.sortList(this.filtered(), 'DURATION')[0] ?? null);
+  readonly best = computed<FlightResult | null>(() => this.sortList(this.filtered(), 'BEST')[0] ?? null);
 
   readonly slotsList: { id: Slot; label: string }[] = [
     { id: 'morning', label: 'Matin' },

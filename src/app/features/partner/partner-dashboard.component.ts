@@ -22,7 +22,7 @@ import { ALLOWED_TYPES, OFFER_CONFIGS } from './offer-config';
       <div class="kpis">
         <div class="card kpi"><span class="muted small">Clics vers votre site (30 j)</span><strong>{{ s.clicks30d }}</strong></div>
         @for (c of configs(); track c.type) {
-          <a class="card kpi" [routerLink]="['/partenaire/offres', c.slug]"><span class="muted small">Offres {{ c.title | lowercase }}</span><strong>{{ s.offers[c.type] ?? 0 }}</strong></a>
+          <a class="card kpi" [routerLink]="['/partenaire/offres', c.slug]"><span class="muted small">Offres {{ c.title | lowercase }}</span><strong>{{ s.offers[c.type] || 0 }}</strong></a>
         }
       </div>
       <section class="card block">
