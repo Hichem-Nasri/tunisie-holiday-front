@@ -1,0 +1,148 @@
+<div class="summary-bar">
+  <div class="container">
+    <th-search-form [initialTab]="'vols'" [compact]="true" [query]="query()" />
+  </div>
+</div>
+
+<div class="container results-layout">
+  <aside class="card filters" aria-label="Filtres">
+    <div class="results-head">
+      <h2>Filtres</h2>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="resetFilters()">Réinitialiser</button>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Escales</div>
+      <label class="check"><input type="checkbox" [checked]="stops().has(0)" (change)="toggleStop(0)"> Direct</label>
+      <label class="check"><input type="checkbox" [checked]="stops().has(1)" (change)="toggleStop(1)"> 1 escale</label>
+      <label class="check"><input type="checkbox" [checked]="stops().has(2)" (change)="toggleStop(2)"> 2 escales et plus</label>
+    </div>
+    @if (airlines().length) {
+      <div class="filter-group">
+        <div class="filter-group-title">Compagnies</div>
+        @for (a of airlines(); track a.code) {
+          <label class="check"><input type="checkbox" [checked]="!excludedAirlines().has(a.code)" (change)="toggleAirline(a.code)"> {{ a.name }}</label>
+        }
+      </div>
+    }
+    <div class="filter-group">
+      <div class="filter-group-title">Heure de départ (aller)</div>
+      <div class="slots">
+        @for (s of slotsList; track s.id) {
+          <button type="button" class="chip" [attr.aria-pressed]="slots().has(s.id)" (click)="toggleSlot(s.id)">{{ s.label }}</button>
+        }
+      </div>
+    </div>
+    @if (priceBounds().max > priceBounds().min) {
+      <div class="filter-group">
+        <label class="filter-group-title" for="max-price">Prix maximum : {{ (maxPrice() ?? priceBounds().max) | money: currency.current() }}</label>
+        <input id="max-price" type="range" [min]="priceBounds().min" [max]="priceBounds().max" [value]="maxPrice() ?? priceBounds().max" (input)="onMaxPrice($any($event.target).value)" style="width: 100%; accent-color: #1660C8">
+      </div>
+    }
+  </aside>
+
+  <section class="results" aria-live="polite">
+    @if (!hasSearch()) {
+      <div class="card empty">
+        <h2>Où souhaitez-vous partir ?</h2>
+        <p class="muted">Renseignez votre trajet et vos dates ci-dessus pour comparer les vols.</p>
+      </div>
+    } @else if (loading()) {
+      @for (i of [1,2,3,4]; track i) {
+        <div class="skeleton" style="height: 150px"></div>
+      }
+    } @else if (error()) {
+      <div class="alert alert-error" role="alert">{{ error() }}</div>
+    } @else {
+      <div class="results-head">
+        <h1>{{ filtered().length }} vol{{ filtered().length > 1 ? 's' : '' }} trouvé{{ filtered().length > 1 ? 's' : '' }}</h1>
+        @if (alertState() === 'idle') {
+          <button type="button" class="btn btn-ghost" (click)="alertState.set('open')">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+            Créer une alerte prix
+          </button>
+        }
+      </div>
+
+      @if (alertState() === 'open' || alertState() === 'error') {
+        <form class="card alert-form" (ngSubmit)="sendAlert()">
+          <div class="field" style="flex: 1 1 260px">
+            <label for="alert-email">Recevoir une alerte si le prix baisse</label>
+            <input id="alert-email" type="email" name="email" placeholder="votre@email.com" [ngModel]="alertEmail()" (ngModelChange)="alertEmail.set($event)">
+          </div>
+          <button type="submit" class="btn btn-blue">Créer l'alerte</button>
+          @if (alertState() === 'error') {
+            <p class="field-error" style="flex-basis: 100%; margin: 0">Vérifiez l'adresse email et réessayez.</p>
+          }
+        </form>
+      }
+      @if (alertState() === 'sent') {
+        <div class="alert alert-success">Alerte enregistrée. Nous vous écrirons si le prix baisse.</div>
+      }
+
+      @if (filtered().length) {
+        <div class="card sort-tabs" role="tablist" aria-label="Trier par">
+          <button type="button" role="tab" [class.active]="sort() === 'PRICE'" [attr.aria-selected]="sort() === 'PRICE'" (click)="sort.set('PRICE')">
+            <span class="sort-label">Le moins cher</span><span class="sort-hint">{{ cheapest()?.minPrice | money: currency.current() }}</span>
+          </button>
+          <button type="button" role="tab" [class.active]="sort() === 'DURATION'" [attr.aria-selected]="sort() === 'DURATION'" (click)="sort.set('DURATION')">
+            <span class="sort-label">Le plus rapide</span><span class="sort-hint">{{ fastest()?.totalDurationMinutes | duration }}</span>
+          </button>
+          <button type="button" role="tab" [class.active]="sort() === 'BEST'" [attr.aria-selected]="sort() === 'BEST'" (click)="sort.set('BEST')">
+            <span class="sort-label">Meilleur choix</span><span class="sort-hint">{{ best()?.minPrice | money: currency.current() }}</span>
+          </button>
+        </div>
+      }
+
+      @for (f of filtered(); track f.id) {
+        <article class="card result-card">
+          <div class="flight-body">
+            @for (leg of f.inbound ? [f.outbound, f.inbound] : [f.outbound]; track $index) {
+              <div class="leg">
+                <div class="airline" [attr.aria-label]="f.airlineName">{{ f.airlineCode }}</div>
+                <div class="time"><strong>{{ leg.departureAt | date: 'HH:mm' }}</strong><span>{{ leg.originCode }}</span></div>
+                <div class="line">
+                  <span class="muted small">{{ leg.durationMinutes | duration }}</span>
+                  <span class="track"></span>
+                  <span class="small" [class.direct]="leg.stops === 0">{{ stopsLabel(leg.stops) }}</span>
+                </div>
+                <div class="time right"><strong>{{ leg.arrivalAt | date: 'HH:mm' }}</strong><span>{{ leg.destinationCode }}</span></div>
+              </div>
+            }
+            <div class="muted small">{{ f.airlineName }} · {{ f.outbound.departureAt | date: 'EEE d MMM' }}@if (f.inbound) { – {{ f.inbound.departureAt | date: 'EEE d MMM' }}}</div>
+          </div>
+          <div class="result-price">
+            @if (f.id === cheapest()?.id) { <span class="badge badge-orange" style="align-self: flex-start">Le moins cher</span> }
+            @else if (f.id === fastest()?.id) { <span class="badge badge-blue" style="align-self: flex-start">Le plus rapide</span> }
+            <span class="muted small">{{ f.offers.length }} offre{{ f.offers.length > 1 ? 's' : '' }} dès</span>
+            <span class="price-big">{{ f.minPrice | money: f.currency }}</span>
+            <span class="muted small">par personne{{ f.inbound ? ', aller-retour' : '' }}</span>
+            @if (f.offers.length > 1) {
+              <button type="button" class="btn btn-primary" (click)="toggleExpanded(f.id)" [attr.aria-expanded]="expanded() === f.id">Voir les {{ f.offers.length }} offres</button>
+            } @else {
+              <a class="btn btn-primary" [href]="f.offers[0].redirectUrl" target="_blank" rel="noopener">Voir l'offre</a>
+            }
+          </div>
+          @if (expanded() === f.id) {
+            <ul class="offers">
+              @for (o of f.offers; track o.offerKey) {
+                <li>
+                  <span><strong>{{ o.partnerName }}</strong> @if (o.source === 'AMADEUS') { <span class="badge badge-gray">Amadeus</span> } <span class="muted small">· {{ o.baggageIncluded ? 'Bagage en soute inclus' : 'Bagage cabine uniquement' }}</span></span>
+                  <span class="offer-right"><strong>{{ o.price | money: o.currency }}</strong><a class="btn btn-primary btn-sm" [href]="o.redirectUrl" target="_blank" rel="noopener">Réserver</a></span>
+                </li>
+              }
+            </ul>
+          }
+        </article>
+      } @empty {
+        <div class="card empty">
+          <h2>Aucun vol ne correspond</h2>
+          <p class="muted">Essayez d'autres dates, un aéroport voisin ou retirez des filtres.</p>
+        </div>
+      }
+      @if (response()?.sources?.length) {
+        <p class="muted small">Sources : {{ response()!.sources!.join(', ') === 'PARTNERS' ? 'agences partenaires' : 'agences partenaires et Amadeus' }}. Les prix sont indicatifs et confirmés sur le site du partenaire.</p>
+      }
+    }
+  </section>
+</div>
+

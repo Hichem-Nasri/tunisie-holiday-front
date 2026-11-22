@@ -1,0 +1,186 @@
+<form class="search" [class.compact]="compact()" (ngSubmit)="submit()" novalidate>
+  @if (!compact()) {
+    <div class="tabs search-tabs" role="tablist" aria-label="Type de recherche">
+      @for (t of tabs; track t.id) {
+        <button type="button" role="tab" class="tab" [class.active]="tab() === t.id" [attr.aria-selected]="tab() === t.id" (click)="selectTab(t.id)">{{ t.label }}</button>
+      }
+    </div>
+  }
+
+  <div class="body">
+    @switch (tab()) {
+      @case ('vols') {
+        @if (!compact()) {
+          <div class="trip" role="radiogroup" aria-label="Type de trajet">
+            <label class="chip" [class.active]="flight.tripType === 'rt'"><input type="radio" name="tripType" value="rt" [(ngModel)]="flight.tripType" class="sr-only">Aller-retour</label>
+            <label class="chip" [class.active]="flight.tripType === 'ow'"><input type="radio" name="tripType" value="ow" [(ngModel)]="flight.tripType" class="sr-only">Aller simple</label>
+          </div>
+        }
+        <div class="row">
+          <div class="field grow">
+            <label for="f-origin">De</label>
+            <input id="f-origin" name="origin" list="origin-list" autocomplete="off" [(ngModel)]="flight.origin" (ngModelChange)="onOriginInput($event)" placeholder="Ville ou aéroport">
+            <datalist id="origin-list">
+              @for (o of originOptions(); track o.value + o.label) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </datalist>
+          </div>
+          <button type="button" class="swap" (click)="swap()" aria-label="Inverser départ et arrivée">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h13l-4-4M17 17H4l4 4"/></svg>
+          </button>
+          <div class="field grow">
+            <label for="f-destination">Vers</label>
+            <input id="f-destination" name="destination" list="destination-list" autocomplete="off" [(ngModel)]="flight.destination" (ngModelChange)="onDestinationInput($event)" placeholder="Ville ou aéroport">
+            <datalist id="destination-list">
+              @for (o of destinationOptions(); track o.value + o.label) {
+                <option [value]="o.value">{{ o.label }}</option>
+              }
+            </datalist>
+          </div>
+          <div class="field date">
+            <label for="f-dep">Départ</label>
+            <input id="f-dep" type="date" name="departureDate" [min]="minDate" [(ngModel)]="flight.departureDate" (ngModelChange)="onDepartureChange()">
+          </div>
+          @if (flight.tripType === 'rt') {
+            <div class="field date">
+              <label for="f-ret">Retour</label>
+              <input id="f-ret" type="date" name="returnDate" [min]="flight.departureDate" [(ngModel)]="flight.returnDate">
+            </div>
+          }
+          <div class="field small-field">
+            <label for="f-adults">Voyageurs</label>
+            <select id="f-adults" name="adults" [(ngModel)]="flight.adults">
+              @for (n of [1,2,3,4,5,6,7,8,9]; track n) {
+                <option [ngValue]="n">{{ n }} adulte{{ n > 1 ? 's' : '' }}</option>
+              }
+            </select>
+          </div>
+          <div class="field small-field">
+            <label for="f-cabin">Classe</label>
+            <select id="f-cabin" name="cabin" [(ngModel)]="flight.cabin">
+              @for (c of cabins; track c.value) {
+                <option [value]="c.value">{{ c.label }}</option>
+              }
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary submit">Rechercher</button>
+        </div>
+      }
+
+      @case ('hotels') {
+        <div class="row">
+          <div class="field grow-2">
+            <label for="h-q">Destination, ville ou hôtel</label>
+            <input id="h-q" name="q" list="dest-list" autocomplete="off" [(ngModel)]="hotel.q" placeholder="Ex. Hammamet, Djerba…">
+          </div>
+          <div class="field date">
+            <label for="h-in">Arrivée</label>
+            <input id="h-in" type="date" name="checkIn" [min]="minDate" [(ngModel)]="hotel.checkIn" (ngModelChange)="onCheckInChange(hotel)">
+          </div>
+          <div class="field date">
+            <label for="h-out">Départ</label>
+            <input id="h-out" type="date" name="checkOut" [min]="hotel.checkIn" [(ngModel)]="hotel.checkOut">
+          </div>
+          <div class="field tiny">
+            <label for="h-adults">Adultes</label>
+            <input id="h-adults" type="number" name="adults" min="1" max="20" [(ngModel)]="hotel.adults">
+          </div>
+          <div class="field tiny">
+            <label for="h-children">Enfants</label>
+            <input id="h-children" type="number" name="children" min="0" max="10" [(ngModel)]="hotel.children">
+          </div>
+          <div class="field tiny">
+            <label for="h-rooms">Chambres</label>
+            <input id="h-rooms" type="number" name="rooms" min="1" max="9" [(ngModel)]="hotel.rooms">
+          </div>
+          <button type="submit" class="btn btn-primary submit">Rechercher</button>
+        </div>
+      }
+
+      @case ('voitures') {
+        <div class="row">
+          <div class="field grow-2">
+            <label for="c-loc">Lieu de prise en charge</label>
+            <select id="c-loc" name="location" [(ngModel)]="car.location">
+              @for (l of pickupLocations(); track l.code) {
+                <option [value]="l.code">{{ l.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="field date">
+            <label for="c-pd">Prise en charge</label>
+            <input id="c-pd" type="date" name="pickupDate" [min]="minDate" [(ngModel)]="car.pickupDate">
+          </div>
+          <div class="field tiny">
+            <label for="c-pt">Heure</label>
+            <input id="c-pt" type="time" name="pickupTime" [(ngModel)]="car.pickupTime">
+          </div>
+          <div class="field date">
+            <label for="c-dd">Restitution</label>
+            <input id="c-dd" type="date" name="dropoffDate" [min]="car.pickupDate" [(ngModel)]="car.dropoffDate">
+          </div>
+          <div class="field tiny">
+            <label for="c-dt">Heure</label>
+            <input id="c-dt" type="time" name="dropoffTime" [(ngModel)]="car.dropoffTime">
+          </div>
+          <div class="field tiny">
+            <label for="c-age">Âge</label>
+            <input id="c-age" type="number" name="driverAge" min="18" max="99" [(ngModel)]="car.driverAge">
+          </div>
+          <button type="submit" class="btn btn-primary submit">Rechercher</button>
+        </div>
+      }
+
+      @case ('locations') {
+        <div class="row">
+          <div class="field grow-2">
+            <label for="r-q">Destination</label>
+            <input id="r-q" name="q" list="dest-list" autocomplete="off" [(ngModel)]="rental.q" placeholder="Ex. Sidi Bou Saïd">
+          </div>
+          <div class="field date">
+            <label for="r-in">Arrivée</label>
+            <input id="r-in" type="date" name="checkIn" [min]="minDate" [(ngModel)]="rental.checkIn" (ngModelChange)="onCheckInChange(rental)">
+          </div>
+          <div class="field date">
+            <label for="r-out">Départ</label>
+            <input id="r-out" type="date" name="checkOut" [min]="rental.checkIn" [(ngModel)]="rental.checkOut">
+          </div>
+          <div class="field tiny">
+            <label for="r-guests">Voyageurs</label>
+            <input id="r-guests" type="number" name="guests" min="1" max="30" [(ngModel)]="rental.guests">
+          </div>
+          <button type="submit" class="btn btn-primary submit">Rechercher</button>
+        </div>
+      }
+
+      @case ('loisirs') {
+        <div class="row">
+          <div class="field grow-2">
+            <label for="a-q">Où ?</label>
+            <input id="a-q" name="q" list="dest-list" autocomplete="off" [(ngModel)]="activity.q" placeholder="Ex. Tozeur, Djerba">
+          </div>
+          <div class="field date">
+            <label for="a-date">Date</label>
+            <input id="a-date" type="date" name="date" [min]="minDate" [(ngModel)]="activity.date">
+          </div>
+          <div class="field tiny">
+            <label for="a-p">Participants</label>
+            <input id="a-p" type="number" name="participants" min="1" max="30" [(ngModel)]="activity.participants">
+          </div>
+          <button type="submit" class="btn btn-primary submit">Rechercher</button>
+        </div>
+      }
+    }
+
+    <datalist id="dest-list">
+      @for (d of destinations(); track d.id) {
+        <option [value]="d.name"></option>
+      }
+    </datalist>
+
+    @if (error()) {
+      <p class="alert alert-error" role="alert">{{ error() }}</p>
+    }
+  </div>
+</form>

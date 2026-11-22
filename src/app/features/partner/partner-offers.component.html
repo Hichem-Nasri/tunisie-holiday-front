@@ -1,0 +1,192 @@
+@if (config(); as c) {
+  <div class="head">
+    <h1>{{ c.title }}</h1>
+    @if (!showForm()) {
+      <button type="button" class="btn btn-primary" (click)="openCreate()" [disabled]="!canPublish()">Ajouter {{ c.singular }}</button>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="alert alert-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (showForm()) {
+    <form class="card form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <h2>{{ editingId() === null ? 'Nouvelle offre' : 'Modifier l\'offre' }}</h2>
+      <div class="grid">
+        @for (f of c.fields; track f.key) {
+          @switch (f.type) {
+            @case ('checkbox') {
+              <label class="check"><input type="checkbox" [formControlName]="f.key"> {{ f.label }}</label>
+            }
+            @case ('select') {
+              <div class="field">
+                <label [for]="'f-' + f.key">{{ f.label }}</label>
+                <select [id]="'f-' + f.key" [formControlName]="f.key">
+                  @for (o of f.options ?? []; track o.value) {
+                    <option [value]="o.value">{{ o.label }}</option>
+                  }
+                </select>
+              </div>
+            }
+            @case ('hotel') {
+              <div class="field wide">
+                <label [for]="'f-' + f.key">{{ f.label }}</label>
+                <div class="hotel-row">
+                  <select [id]="'f-' + f.key" [formControlName]="f.key" [class.invalid]="isInvalid(f.key)">
+                    <option value="">Choisir un hôtel…</option>
+                    @for (h of hotels(); track h.id) {
+                      <option [value]="h.id">{{ h.name }} — {{ h.destination }}</option>
+                    }
+                  </select>
+                  <button type="button" class="btn btn-ghost" (click)="showHotelForm.set(!showHotelForm())">Ajouter un hôtel</button>
+                </div>
+              </div>
+            }
+            @case ('destination') {
+              <div class="field">
+                <label [for]="'f-' + f.key">{{ f.label }}</label>
+                <select [id]="'f-' + f.key" [formControlName]="f.key" [class.invalid]="isInvalid(f.key)">
+                  <option value="">Choisir…</option>
+                  @for (d of destinations(); track d.id) {
+                    <option [value]="d.id">{{ d.name }}</option>
+                  }
+                </select>
+              </div>
+            }
+            @case ('textarea') {
+              <div class="field wide">
+                <label [for]="'f-' + f.key">{{ f.label }}</label>
+                <textarea [id]="'f-' + f.key" [formControlName]="f.key"></textarea>
+              </div>
+            }
+            @default {
+              <div class="field" [class.wide]="f.wide">
+                <label [for]="'f-' + f.key">{{ f.label }}{{ f.required ? ' *' : '' }}</label>
+                <input [id]="'f-' + f.key" [formControlName]="f.key" [placeholder]="f.placeholder ?? ''"
+                  [type]="f.type === 'datetime' ? 'datetime-local' : f.type === 'number' ? 'number' : f.type === 'url' ? 'url' : 'text'"
+                  [attr.min]="f.min ?? null" [attr.max]="f.max ?? null" [attr.step]="f.step ?? null" [class.invalid]="isInvalid(f.key)">
+                @if (isInvalid(f.key)) {
+                  <span class="field-error">{{ f.type === 'url' ? 'Lien invalide (https://…)' : 'Valeur requise ou invalide' }}</span>
+                }
+              </div>
+            }
+          }
+        }
+      </div>
+
+      @if (showHotelForm() && c.type === 'HOTEL') {
+        <div class="hotel-form" [formGroup]="hotelForm">
+          <h3>Nouvel hôtel</h3>
+          @if (hotelError()) {
+            <div class="alert alert-error" role="alert">{{ hotelError() }}</div>
+          }
+          <div class="grid">
+            <div class="field"><label for="h-name">Nom</label><input id="h-name" formControlName="name"></div>
+            <div class="field">
+              <label for="h-dest">Destination</label>
+              <select id="h-dest" formControlName="destinationId">
+                <option [ngValue]="null">Choisir…</option>
+                @for (d of destinations(); track d.id) {
+                  <option [ngValue]="d.id">{{ d.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="field">
+              <label for="h-type">Type</label>
+              <select id="h-type" formControlName="type">
+                @for (t of hotelTypes; track t.value) {
+                  <option [value]="t.value">{{ t.label }}</option>
+                }
+              </select>
+            </div>
+            <div class="field">
+              <label for="h-stars">Étoiles</label>
+              <select id="h-stars" formControlName="stars">
+                @for (n of [1,2,3,4,5]; track n) {
+                  <option [ngValue]="n">{{ n }}</option>
+                }
+              </select>
+            </div>
+            <div class="field"><label for="h-loc">Situation</label><input id="h-loc" formControlName="locationLabel" placeholder="Front de mer, 50 m de la plage"></div>
+            <div class="field"><label for="h-addr">Adresse</label><input id="h-addr" formControlName="address"></div>
+            <div class="field wide"><label for="h-img">Photo (URL)</label><input id="h-img" type="url" formControlName="imageUrl" placeholder="https://"></div>
+          </div>
+          <div class="amenities">
+            @for (a of amenityOptions; track a.value) {
+              <label class="check"><input type="checkbox" [checked]="hotelForm.controls.amenities.value.includes(a.value)" (change)="toggleAmenity(a.value)"> {{ a.label }}</label>
+            }
+          </div>
+          <button type="button" class="btn btn-blue" (click)="saveHotel()">Enregistrer l'hôtel</button>
+        </div>
+      }
+
+      @if (formError()) {
+        <div class="alert alert-error" role="alert">{{ formError() }}</div>
+      }
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" (click)="closeForm()">Annuler</button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving()">{{ saving() ? 'Enregistrement…' : 'Enregistrer' }}</button>
+      </div>
+    </form>
+  }
+
+  <div class="card">
+    @if (loading()) {
+      <div class="skeleton" style="height: 200px"></div>
+    } @else if (offers().length === 0) {
+      <div class="empty">
+        <h2>Aucune offre pour le moment</h2>
+        <p class="muted">Ajoutez votre première offre : elle apparaîtra dans les résultats de recherche dès son enregistrement.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              @for (col of c.columns; track col.key) {
+                <th scope="col">{{ col.label }}</th>
+              }
+              <th scope="col">Clics 30 j</th>
+              <th scope="col">Statut</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (o of offers(); track o.id) {
+              <tr [class.inactive]="!o.active">
+                @for (col of c.columns; track col.key) {
+                  <td>
+                    @switch (col.format) {
+                      @case ('money') { {{ asNumber(cell(o, col)) | money: asString(o['currency']): 2 }} }
+                      @case ('datetime') { {{ asString(cell(o, col)) | date: 'dd/MM/yy HH:mm' }} }
+                      @case ('label') { {{ asString(cell(o, col)) | label: col.dictionary ?? '' }} }
+                      @default { {{ asString(cell(o, col)) }} }
+                    }
+                  </td>
+                }
+                <td>{{ o.clicks30d }}</td>
+                <td>
+                  <span class="badge" [class.badge-green]="o.active" [class.badge-gray]="!o.active">{{ o.active ? 'En ligne' : 'Masquée' }}</span>
+                </td>
+                <td class="row-actions">
+                  @if (confirmDeleteId() === o.id) {
+                    <span class="small">Supprimer ?</span>
+                    <button type="button" class="btn btn-danger" (click)="remove(o)">Oui</button>
+                    <button type="button" class="btn btn-ghost" (click)="confirmDeleteId.set(null)">Non</button>
+                  } @else {
+                    <button type="button" class="btn btn-ghost" (click)="openEdit(o)">Modifier</button>
+                    <button type="button" class="btn btn-ghost" (click)="toggleActive(o)">{{ o.active ? 'Masquer' : 'Publier' }}</button>
+                    <button type="button" class="btn btn-danger" (click)="confirmDeleteId.set(o.id)" aria-label="Supprimer l'offre">Supprimer</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="alert alert-error">Type d'offre inconnu.</div>
+}

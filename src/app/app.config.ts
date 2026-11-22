@@ -1,19 +1,18 @@
-import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { ApplicationConfig, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
 import { routes } from './app.routes';
-import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { authInterceptor } from './core/auth.interceptor';
+
+registerLocaleData(localeFr);
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
-
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: JwtInterceptor,
-      multi: true
-    }
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' })),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    { provide: LOCALE_ID, useValue: 'fr-FR' }
   ]
 };

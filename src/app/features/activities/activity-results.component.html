@@ -1,0 +1,63 @@
+<div class="summary-bar">
+  <div class="container">
+    <th-search-form [initialTab]="'loisirs'" [compact]="true" [query]="page.query()" />
+  </div>
+</div>
+
+<div class="container">
+  @if (availableCategories().length > 1) {
+    <div class="cats" role="tablist" aria-label="Catégorie">
+      <button type="button" role="tab" class="chip" [attr.aria-selected]="category() === 'ALL'" [attr.aria-pressed]="category() === 'ALL'" (click)="category.set('ALL')">Toutes</button>
+      @for (c of availableCategories(); track c.value) {
+        <button type="button" role="tab" class="chip" [attr.aria-selected]="category() === c.value" [attr.aria-pressed]="category() === c.value" (click)="category.set(c.value)">{{ c.label }}</button>
+      }
+    </div>
+  }
+</div>
+
+<div class="container results-layout">
+  <section class="results" aria-live="polite">
+    @if (!page.hasSearch()) {
+      <div class="card empty">
+        <h2>Excursions, thalasso, plongée…</h2>
+        <p class="muted">Choisissez une destination pour découvrir les activités de nos partenaires.</p>
+      </div>
+    } @else if (page.loading()) {
+      @for (i of [1,2,3]; track i) {
+        <div class="skeleton" style="height: 200px"></div>
+      }
+    } @else if (page.error()) {
+      <div class="alert alert-error" role="alert">{{ page.error() }}</div>
+    } @else {
+      <div class="results-head">
+        <h1>{{ filtered().length }} activité{{ filtered().length > 1 ? 's' : '' }}</h1>
+        <span class="muted">{{ page.query()['participants'] }} participant{{ +page.query()['participants'] > 1 ? 's' : '' }}</span>
+      </div>
+      @for (a of filtered(); track a.offerId) {
+        <article class="card result-card">
+          <img class="result-media" [src]="a.imageUrl || 'assets/img/sahara.svg'" [alt]="a.title" loading="lazy">
+          <div class="result-body">
+            <span class="badge badge-blue" style="align-self: flex-start">{{ a.category | label: 'activity' }} · {{ a.destination }}</span>
+            <h2 class="title">{{ a.title }}</h2>
+            <ul class="specs">
+              <li>Durée : {{ a.durationHours | number: '1.0-1' }} h</li>
+              @if (a.meetingPoint) { <li>Départ : {{ a.meetingPoint }}</li> }
+            </ul>
+            @if (a.description) { <p class="desc">{{ a.description }}</p> }
+            <div class="partner-line"><strong>{{ a.partnerName }}</strong></div>
+          </div>
+          <div class="result-price">
+            <span class="price-big">{{ a.pricePerPerson | money: a.currency }}<span class="price-unit"> / pers.</span></span>
+            <span class="muted small">Total : {{ a.totalPrice | money: a.currency }}</span>
+            <a class="btn btn-primary" [href]="a.redirectUrl" target="_blank" rel="noopener">Réserver</a>
+          </div>
+        </article>
+      } @empty {
+        <div class="card empty">
+          <h2>Aucune activité trouvée</h2>
+          <p class="muted">Essayez une autre destination.</p>
+        </div>
+      }
+    }
+  </section>
+</div>

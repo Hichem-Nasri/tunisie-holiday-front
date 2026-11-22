@@ -1,0 +1,85 @@
+<section class="hero">
+  <svg class="arch" aria-hidden="true" viewBox="0 0 400 520" fill="none" stroke="#ffffff" stroke-width="14"><path d="M40 520V200a160 160 0 0 1 320 0v320"/><path d="M100 520V220a100 100 0 0 1 200 0v300"/><path d="M200 120v400"/></svg>
+  <div class="container hero-inner">
+    <p class="eyebrow">Le comparateur du voyage en Tunisie</p>
+    <h1>Vols, hôtels, voitures et séjours : toute la Tunisie au meilleur prix</h1>
+    <p class="lead">Comparez les offres des compagnies, hôtels et agences locales, puis réservez directement chez le partenaire de votre choix.</p>
+    <th-search-form initialTab="vols" />
+  </div>
+</section>
+
+<section class="container section">
+  <div class="grid-auto">
+    <div class="card benefit">
+      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1660C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+      <div><h3>Prix comparés</h3><p>Toutes les offres côte à côte, sans frais cachés.</p></div>
+    </div>
+    <div class="card benefit">
+      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1660C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.5a3 3 0 0 0-3-1.5c-1.7 0-3 1-3 2.2 0 3 6 1.6 6 4.6 0 1.2-1.3 2.2-3 2.2a3 3 0 0 1-3-1.5M12 6v12"/></svg>
+      <div><h3>Multi-devises</h3><p>Affichez les prix en TND, EUR, USD ou GBP.</p></div>
+    </div>
+    <div class="card benefit">
+      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1660C8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+      <div><h3>Partenaires vérifiés</h3><p>Agences et hébergeurs tunisiens validés par notre équipe.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <h2 class="section-title">Destinations populaires</h2>
+    <a routerLink="/hotels">Voir toute la Tunisie</a>
+  </div>
+  <div class="destinations">
+    @for (d of destinations(); track d.id) {
+      <button type="button" class="card destination" (click)="openDestination(d)">
+        <img [src]="d.imageUrl" [alt]="d.name" loading="lazy">
+        <span class="dest-body">
+          <span class="dest-name">{{ d.name }}</span>
+          <span class="dest-tag">{{ d.tagline }}</span>
+        </span>
+      </button>
+    } @empty {
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="skeleton dest-skeleton"></div>
+      }
+    }
+  </div>
+</section>
+
+<section class="container section">
+  <h2 class="section-title">Offres du moment</h2>
+  <div class="deals">
+    @if (loadingDeals()) {
+      @for (i of [1,2,3]; track i) {
+        <div class="skeleton deal-skeleton"></div>
+      }
+    } @else {
+      @for (deal of deals(); track deal.title) {
+        <button type="button" class="card deal" (click)="openDeal(deal)">
+          <span class="deal-media">
+            <img [src]="deal.imageUrl" [alt]="deal.title" loading="lazy">
+            <span class="badge badge-orange">{{ deal.badge }}</span>
+          </span>
+          <span class="deal-body">
+            <span class="deal-title">{{ deal.title }}</span>
+            <span class="deal-sub">{{ deal.subtitle }}</span>
+            <span class="deal-price"><span class="muted small">dès</span> <strong>{{ deal.price | money: deal.currency }}</strong> <span class="muted small">/ {{ deal.priceUnit }}</span></span>
+          </span>
+        </button>
+      } @empty {
+        <p class="muted">Les offres de nos partenaires arrivent bientôt.</p>
+      }
+    }
+  </div>
+</section>
+
+<section class="container section">
+  <div class="partner-cta">
+    <div>
+      <h2>Vous êtes une agence, un hôtel ou un loueur ?</h2>
+      <p>Référencez vos offres sur Tunisie-Holidays.com et touchez les voyageurs qui préparent leur séjour en Tunisie.</p>
+    </div>
+    <a routerLink="/devenir-partenaire" class="btn btn-dark">Devenir partenaire</a>
+  </div>
+</section>

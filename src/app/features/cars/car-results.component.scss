@@ -1,0 +1,8 @@
+.cats { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 24px; }
+.cats .chip[aria-pressed="true"] { background: var(--blue-dark); border-color: var(--blue-dark); color: #fff; }
+.car-media { max-height: 200px; }
+.model { font-size: 21px; font-weight: 800; }
+.similar { font: 500 14px var(--font-body); }
+.specs { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: #33415C; }
+.conditions { font-size: 14px; color: var(--green); font-weight: 600; }
+.agency { margin-top: auto; padding-top: 6px; font-size: 14px; }

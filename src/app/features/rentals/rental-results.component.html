@@ -1,0 +1,71 @@
+<div class="summary-bar">
+  <div class="container">
+    <th-search-form [initialTab]="'locations'" [compact]="true" [query]="page.query()" />
+  </div>
+</div>
+
+<div class="container results-layout">
+  <aside class="card filters" aria-label="Filtres">
+    <h2>Filtres</h2>
+    <div class="filter-group">
+      <div class="filter-group-title">Type de logement</div>
+      @for (t of types; track t.value) {
+        <label class="check"><input type="checkbox" [checked]="selectedTypes().has(t.value)" (change)="toggleType(t.value)"> {{ t.label }}</label>
+      }
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Équipements</div>
+      <label class="check"><input type="checkbox" [checked]="pool()" (change)="pool.set(!pool())"> Piscine</label>
+      <label class="check"><input type="checkbox" [checked]="seaView()" (change)="seaView.set(!seaView())"> Vue mer</label>
+    </div>
+  </aside>
+
+  <section class="results" aria-live="polite">
+    @if (!page.hasSearch()) {
+      <div class="card empty">
+        <h2>Trouvez votre location de vacances</h2>
+        <p class="muted">Villas, appartements et dars traditionnels dans toute la Tunisie.</p>
+      </div>
+    } @else if (page.loading()) {
+      @for (i of [1,2,3]; track i) {
+        <div class="skeleton" style="height: 220px"></div>
+      }
+    } @else if (page.error()) {
+      <div class="alert alert-error" role="alert">{{ page.error() }}</div>
+    } @else {
+      <div class="results-head">
+        <h1>{{ filtered().length }} location{{ filtered().length > 1 ? 's' : '' }} disponible{{ filtered().length > 1 ? 's' : '' }}</h1>
+        <span class="muted">{{ page.response()?.nights }} nuit{{ (page.response()?.nights ?? 0) > 1 ? 's' : '' }}</span>
+      </div>
+      @for (r of filtered(); track r.offerId) {
+        <article class="card result-card">
+          <img class="result-media" [src]="r.imageUrl || 'assets/img/pool.svg'" [alt]="r.title" loading="lazy">
+          <div class="result-body">
+            <span class="badge badge-blue" style="align-self: flex-start">{{ r.type | label: 'rental' }} · {{ r.destination }}</span>
+            <h2 class="title">{{ r.title }}</h2>
+            <ul class="specs">
+              <li>{{ r.capacity }} voyageurs</li>
+              <li>{{ r.bedrooms }} chambre{{ r.bedrooms > 1 ? 's' : '' }}</li>
+              <li>{{ r.bathrooms }} salle{{ r.bathrooms > 1 ? 's' : '' }} de bain</li>
+              @if (r.pool) { <li>Piscine</li> }
+              @if (r.seaView) { <li>Vue mer</li> }
+              @if (r.wifi) { <li>Wi-Fi</li> }
+            </ul>
+            @if (r.description) { <p class="desc">{{ r.description }}</p> }
+            <div class="partner-line"><strong>{{ r.partnerName }}</strong> <span class="muted">· {{ r.minNights }} nuit{{ r.minNights > 1 ? 's' : '' }} minimum</span></div>
+          </div>
+          <div class="result-price">
+            <span class="price-big">{{ r.totalPrice | money: r.currency }}</span>
+            <span class="muted small">soit {{ r.pricePerNight | money: r.currency }} / nuit</span>
+            <a class="btn btn-primary" [href]="r.redirectUrl" target="_blank" rel="noopener">Voir l'offre</a>
+          </div>
+        </article>
+      } @empty {
+        <div class="card empty">
+          <h2>Aucune location disponible</h2>
+          <p class="muted">Modifiez la destination, le nombre de voyageurs ou la durée du séjour.</p>
+        </div>
+      }
+    }
+  </section>
+</div>

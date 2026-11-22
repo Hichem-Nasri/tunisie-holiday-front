@@ -1,0 +1,89 @@
+<div class="summary-bar">
+  <div class="container">
+    <th-search-form [initialTab]="'voitures'" [compact]="true" [query]="page.query()" />
+  </div>
+</div>
+
+<div class="container">
+  @if (page.response()?.results?.length) {
+    <div class="cats" role="tablist" aria-label="Catégorie">
+      <button type="button" role="tab" class="chip" [attr.aria-selected]="category() === 'ALL'" [attr.aria-pressed]="category() === 'ALL'" (click)="category.set('ALL')">Toutes</button>
+      @for (c of availableCategories(); track c.value) {
+        <button type="button" role="tab" class="chip" [attr.aria-selected]="category() === c.value" [attr.aria-pressed]="category() === c.value" (click)="category.set(c.value)">{{ c.label }}</button>
+      }
+    </div>
+  }
+</div>
+
+<div class="container results-layout">
+  <aside class="card filters" aria-label="Filtres">
+    <h2>Filtres</h2>
+    <div class="filter-group">
+      <div class="filter-group-title">Boîte de vitesses</div>
+      <label class="check"><input type="checkbox" [checked]="transmissions().has('MANUAL')" (change)="toggleTransmission('MANUAL')"> Manuelle</label>
+      <label class="check"><input type="checkbox" [checked]="transmissions().has('AUTOMATIC')" (change)="toggleTransmission('AUTOMATIC')"> Automatique</label>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Conditions</div>
+      <label class="check"><input type="checkbox" [checked]="freeCancellation()" (change)="freeCancellation.set(!freeCancellation())"> Annulation gratuite</label>
+    </div>
+    @if (agencyList().length) {
+      <div class="filter-group">
+        <div class="filter-group-title">Agences</div>
+        @for (a of agencyList(); track a) {
+          <label class="check"><input type="checkbox" [checked]="!agencies().has(a)" (change)="toggleAgency(a)"> {{ a }}</label>
+        }
+      </div>
+    }
+  </aside>
+
+  <section class="results" aria-live="polite">
+    @if (!page.hasSearch()) {
+      <div class="card empty">
+        <h2>Où récupérer votre voiture ?</h2>
+        <p class="muted">Choisissez un lieu et vos dates pour comparer les loueurs.</p>
+      </div>
+    } @else if (page.loading()) {
+      @for (i of [1,2,3]; track i) {
+        <div class="skeleton" style="height: 180px"></div>
+      }
+    } @else if (page.error()) {
+      <div class="alert alert-error" role="alert">{{ page.error() }}</div>
+    } @else {
+      <div class="results-head">
+        <h1>{{ filtered().length }} véhicule{{ filtered().length > 1 ? 's' : '' }} disponible{{ filtered().length > 1 ? 's' : '' }}</h1>
+        <span class="muted">{{ page.response()?.days }} jour{{ (page.response()?.days ?? 0) > 1 ? 's' : '' }} de location</span>
+      </div>
+      @for (c of filtered(); track c.offerId) {
+        <article class="card result-card">
+          <img class="result-media car-media" [src]="c.imageUrl || 'assets/img/road.svg'" [alt]="c.model" loading="lazy">
+          <div class="result-body">
+            <span class="badge badge-blue" style="align-self: flex-start">{{ c.category | label: 'car' }}</span>
+            <h2 class="model">{{ c.model }} <span class="muted similar">ou similaire</span></h2>
+            <ul class="specs">
+              <li>{{ c.seats }} places</li>
+              <li>{{ c.doors }} portes</li>
+              <li>{{ c.transmission | label: 'transmission' }}</li>
+              @if (c.airConditioning) { <li>Climatisation</li> }
+              <li>{{ c.bags }} valise{{ c.bags > 1 ? 's' : '' }}</li>
+            </ul>
+            <div class="conditions">
+              {{ c.unlimitedMileage ? 'Kilométrage illimité' : 'Kilométrage limité' }}{{ c.freeCancellation ? ' · Annulation gratuite' : '' }}
+            </div>
+            <div class="agency"><strong>{{ c.partnerName }}</strong> <span class="muted">· {{ c.pickupLabel }} · conducteur {{ c.minDriverAge }} ans min.</span></div>
+          </div>
+          <div class="result-price">
+            <span class="price-big">{{ c.pricePerDay | money: c.currency }}<span class="price-unit"> / jour</span></span>
+            <span class="muted small">Total {{ page.response()?.days }} jours : {{ c.totalPrice | money: c.currency }}</span>
+            <a class="btn btn-primary" [href]="c.redirectUrl" target="_blank" rel="noopener">Réserver</a>
+          </div>
+        </article>
+      } @empty {
+        <div class="card empty">
+          <h2>Aucun véhicule disponible</h2>
+          <p class="muted">Essayez un autre lieu de prise en charge ou d'autres filtres.</p>
+        </div>
+      }
+    }
+  </section>
+</div>

@@ -1,0 +1,111 @@
+<div class="summary-bar">
+  <div class="container">
+    <th-search-form [initialTab]="'hotels'" [compact]="true" [query]="page.query()" />
+  </div>
+</div>
+
+<div class="container results-layout">
+  <aside class="card filters" aria-label="Filtres">
+    <div class="results-head">
+      <h2>Filtres</h2>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="reset()">Réinitialiser</button>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Formule</div>
+      @for (b of boards; track b.value) {
+        <label class="check"><input type="checkbox" [checked]="selectedBoards().has(b.value)" (change)="toggleBoard(b.value)"> {{ b.label }}</label>
+      }
+      <label class="check"><input type="checkbox" [checked]="freeCancellation()" (change)="freeCancellation.set(!freeCancellation())"> Annulation gratuite</label>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Type d'hébergement</div>
+      @for (t of types; track t.value) {
+        <label class="check"><input type="checkbox" [checked]="selectedTypes().has(t.value)" (change)="toggleType(t.value)"> {{ t.label }}</label>
+      }
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Étoiles</div>
+      <div class="stars-grid">
+        @for (n of [2,3,4,5]; track n) {
+          <button type="button" class="chip" [attr.aria-pressed]="stars().has(n)" (click)="toggleStar(n)">{{ n }}★</button>
+        }
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-title">Équipements</div>
+      @for (a of amenities; track a.value) {
+        <label class="check"><input type="checkbox" [checked]="selectedAmenities().has(a.value)" (change)="toggleAmenity(a.value)"> {{ a.label }}</label>
+      }
+    </div>
+  </aside>
+
+  <section class="results" aria-live="polite">
+    @if (!page.hasSearch()) {
+      <div class="card empty">
+        <h2>Où voulez-vous séjourner ?</h2>
+        <p class="muted">Indiquez une destination et vos dates pour comparer les hôtels.</p>
+      </div>
+    } @else if (page.loading()) {
+      @for (i of [1,2,3]; track i) {
+        <div class="skeleton" style="height: 220px"></div>
+      }
+    } @else if (page.error()) {
+      <div class="alert alert-error" role="alert">{{ page.error() }}</div>
+    } @else {
+      <div class="results-head">
+        <h1>{{ filtered().length }} hébergement{{ filtered().length > 1 ? 's' : '' }} · {{ destinationLabel() }}</h1>
+        <label class="sort">Trier par
+          <select class="input" [value]="sort()" (change)="onSort($any($event.target).value)">
+            <option value="RECOMMENDED">Recommandés</option>
+            <option value="PRICE">Prix croissant</option>
+            <option value="RATING">Note des clients</option>
+            <option value="STARS">Étoiles</option>
+          </select>
+        </label>
+      </div>
+
+      @for (h of filtered(); track h.hotelId) {
+        <article class="card result-card">
+          <img class="result-media" [src]="h.imageUrl || 'assets/img/pool.svg'" [alt]="h.name" loading="lazy">
+          <div class="result-body">
+            <th-stars [count]="h.stars" />
+            <h2 class="name">{{ h.name }}</h2>
+            <div class="muted small">{{ h.locationLabel || h.destination }} · {{ h.type | label: 'hotelType' }}</div>
+            <div class="tags">
+              @for (a of h.amenities; track a) {
+                <span class="badge badge-blue">{{ a | label: 'amenity' }}</span>
+              }
+            </div>
+            <div class="rating">
+              @if (h.rating) { <span class="score">{{ h.rating }}</span> }
+              <strong>{{ ratingLabel(h.rating) }}</strong>
+              @if (h.reviewCount) { <span class="muted small">· {{ h.reviewCount }} avis</span> }
+            </div>
+          </div>
+          <div class="result-price">
+            <div class="compare-title">Comparer {{ h.offers.length }} offre{{ h.offers.length > 1 ? 's' : '' }}</div>
+            @for (o of expanded().has(h.hotelId) ? h.offers : h.offers.slice(0, 3); track o.offerId) {
+              <a class="offer-line" [href]="o.redirectUrl" target="_blank" rel="noopener">
+                <span><span class="partner">{{ o.partnerName }}</span><span class="muted small">{{ o.board | label: 'board' }}{{ o.freeCancellation ? ' · annulation gratuite' : '' }}</span></span>
+                <strong>{{ o.totalPrice | money: o.currency }}</strong>
+              </a>
+            }
+            @if (h.offers.length > 3) {
+              <button type="button" class="link" (click)="toggleExpanded(h.hotelId)">{{ expanded().has(h.hotelId) ? 'Moins d\'offres' : 'Voir toutes les offres' }}</button>
+            }
+            <div class="best muted small">Meilleur prix · {{ page.response()?.nights }} nuit{{ (page.response()?.nights ?? 0) > 1 ? 's' : '' }}</div>
+            <span class="price-big">{{ h.bestTotal | money: h.currency }}</span>
+            <span class="muted small">soit {{ h.bestPerNight | money: h.currency }} / nuit</span>
+            <a class="btn btn-primary" [href]="h.offers[0].redirectUrl" target="_blank" rel="noopener">Voir l'offre</a>
+          </div>
+        </article>
+      } @empty {
+        <div class="card empty">
+          <h2>Aucun hébergement disponible</h2>
+          <p class="muted">Modifiez vos dates, la destination ou retirez des filtres.</p>
+        </div>
+      }
+      <p class="muted small">Prix indicatifs pour l'ensemble du séjour, confirmés sur le site du partenaire.</p>
+    }
+  </section>
+</div>

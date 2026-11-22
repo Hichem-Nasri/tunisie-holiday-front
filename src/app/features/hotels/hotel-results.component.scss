@@ -1,0 +1,16 @@
+.stars-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; .chip { justify-content: center; border-radius: 10px; padding: 8px 4px; } }
+.sort { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; .input { min-height: 44px; padding: 8px 12px; width: auto; } }
+.name { font-size: 21px; font-weight: 800; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.rating { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 8px; font-size: 14px; }
+.score { font: 800 14px var(--font-body); color: #fff; background: var(--green); border-radius: 8px; padding: 4px 8px; }
+.compare-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+.offer-line {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px; text-decoration: none; color: var(--navy);
+  padding: 6px 8px; margin: 0 -8px; border-radius: 8px; font-size: 14px;
+  &:hover { background: var(--blue-soft); color: var(--navy); }
+  > span { display: flex; flex-direction: column; }
+}
+.partner { font-weight: 600; }
+.link { background: none; border: 0; color: var(--blue); font: 600 13px var(--font-body); padding: 4px 0; text-align: left; cursor: pointer; min-height: 32px; }
+.best { border-top: 1px dashed var(--field); margin-top: 4px; padding-top: 8px; }
